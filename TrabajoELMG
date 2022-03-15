@@ -1,0 +1,99 @@
+%% Section I: with a discrete r.v. X={-1 1}; a r.v. Y describing the noise as N(0,sigma); 
+    % Z=X+Y; and g(z)=sign(z)
+p=0; %Error probability
+Probs=[];
+Sigmas=[];
+for sigma = 1:10
+
+    % The body of the integral to calculate the distribution function for a Gaussian r.v. :
+    fun = @(u)(1/(sigma.*sqrt(2*pi))).*exp(-(u.^2)/(2*(sigma^2)));
+    % Formula obtained for the probability of error in a symbol:
+    p = 1-0.5.*(1 - integral(fun, -inf, -1/sigma) + integral(fun, -inf, 1/sigma));
+
+    % These matrices store the probability and the sigma squared each time the
+    % loop is executed. Each matrix adds a new column for each.
+    Probs=[Probs p];
+    Sigmas=[Sigmas (sigma.^2)]; % Plot in terms of sigma squared (variance).
+    
+end
+
+% We create a subplot for each section to locate each plot.
+subplot(2,2,1); plot(Probs, Sigmas, 'LineWidth', 2, 'Color', 'm'), title('Section I: Error probability Vs Sigma^2'),...
+    xlabel('Error probability'), ylabel('Sigma^2'), grid
+
+
+%% Section II: with a discrete r.v. X={-3 -1 1 3}; noise Y which is
+    %Gaussian additive noise; Z=X+Y; and g(z)=sign(z)
+p2=0;
+Probs2=[];
+Sigmas2=[];
+
+for sigma = 1:10
+
+    fun = @(u)(1/(sigma.*sqrt(2*pi))).*exp(-(u.^2)/(2*(sigma^2)));
+    p2 = 1-0.25.*(2 + integral(fun, -inf, 3/sigma) + integral(fun, -inf, 1/sigma)...
+                - integral(fun, -inf, -1/sigma) - integral(fun, -inf, -3/sigma));
+
+    Probs2=[Probs2 p2];
+    Sigmas2=[Sigmas2 (sigma.^2)];
+    
+end
+
+subplot(2,2,2); plot(Probs2, Sigmas2, 'LineWidth', 2, 'Color', 'g'), title('Section II: Error probability Vs Sigma^2'),...
+    xlabel('Error probability'), ylabel('Sigma^2'), grid  
+    
+
+%% Section III: with a discrete r.v. X={-3 -1 1 3}; noise Y that can be a
+    %non-Gaussian additive noise; Z=X+Y; and g(z)=sign(z)
+
+p3=0;
+Probs3=[];
+% This time we will not be using a Gaussian r.v. for the noise, but the fpd
+% lambda*e^(lambda*x) instead. Lambdas will be stored in each column of this matrix:
+Lambdas=[];
+
+for lambda=1:10
+    
+    % The body of the integral to add up all the probability at the left of
+    % a given point at the horizontal axis: 
+    fun= @ (y) (lambda.*exp(-lambda.*y));
+    % Clarification for the next formula obtained for the probability of
+    % error in a symbol: The last two integrals will be 0 but they
+    % represent the probability at the left of points -3 and -1 of the
+    % horizontal axis. We left them for better understanding of the
+    % project.
+    p3 = 1-0.25.*(2 + integral(fun, 0, 3) + integral(fun, 0, 1)...
+            - integral(fun, 0, 0) - integral(fun, 0, 0));
+
+    Probs3=[Probs3 p3];
+    Lambdas=[Lambdas (1/lambda.^2)]; % Plot in terms of 1/lambda squared (variance).
+    
+end
+
+subplot(2,2,3); plot(Probs3, Lambdas, 'LineWidth', 2, 'Color', 'b'), title('Section III: Error probability Vs 1/Lambda^2'),...
+    xlabel('Error probability'), ylabel('1/Lambda^2'), grid
+
+%% Section IV: with a discrete r.v. X={-3 -1 1 3}; noise Y that can be a
+    % non-Gaussian additive noise, but different from the previous section;
+    % Z=X+Y; and g(z)=sign(z)
+p4=0;
+Probs4=[];
+% This time we will not be using a Gaussian r.v. for the noise, but the
+% laplace distribution instead. 
+Sigmas3=[];
+
+for sigma= 1:10 
+    % The body of the integral to add up all the probability at the left of
+    % a given point at the horizontal axis depends on wether the point is bigger 
+    % that the mean or smaller in this case the mean is 0 so: 
+    Fa= 0.5*(1+sign(-3)*(1-exp(-abs(-3)/sigma)));
+    Fb= 0.5*(1+sign(-1)*(1-exp(-abs(-1)/sigma)));
+    Fc= 0.5*(1+sign(1)*(1-exp(-abs(1)/sigma)));
+    Fd= 0.5*(1+sign(3)*(1-exp(-abs(3)/sigma)));
+    p4 = 1 - 0.25 .*(2 + Fd + Fc - Fb - Fa);
+    Probs4 = [Probs4 p4];
+    Sigmas3=[Sigmas3 (sigma.^2)];
+    
+end
+  subplot(2,2,4); plot(Probs4, Sigmas3, 'LineWidth', 2, 'Color', 'b'), title('Section IV: Error probability Vs Sigma^2'),...
+    xlabel('Error probability'), ylabel('Sigma^2'), grid;
