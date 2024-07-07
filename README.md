@@ -1,3 +1,2 @@
 # Electromagnetismo
-Código matlab.
-Cálculo de ruido aditivo gaussiano y no gaussiano.
+Matlab code. Calculation of Gaussian and non-Gaussian additive noise.
